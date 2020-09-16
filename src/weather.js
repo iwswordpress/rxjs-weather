@@ -5,6 +5,7 @@ import {
   debounce,
   debounceTime,
   switchMap,
+  skip,
   skipWhile,
   pluck,
   distinctUntilChanged
@@ -28,12 +29,14 @@ const resultsEvent = fromEvent(resultsBox, 'click');
 // Subjects
 const inputSubject = new BehaviorSubject('');
 //const inputSubject = new Subject();
+const weatherSubject = new Subject();
 const placeSubject = new Subject();
 
 const inputData = inputSubject
   .pipe(
-    skipWhile((value) => value === null || value.length < 3),
-    distinctUntilChanged(),
+    skip(1),
+    skipWhile((value) => value === null || value.length < 2),
+    // distinctUntilChanged(),
     tap((value) => {
       spinner.className = 'spinner';
       resultsBox.innerHTML = `<h3>Search term: ${value}</h3>`;
@@ -78,10 +81,10 @@ const inputData = inputSubject
 
 // Put search data into inputSubject that then processes the stream
 searchEvent.subscribe((ev) => {
-  inputSubject.next(searchBox.value);
+  if (searchBox.value.length > 1) inputSubject.next(searchBox.value);
 });
 
-const openWeatherMap = resultsEvent
+const weatherData = resultsEvent
   .pipe(
     switchMap((ev) => {
       const id = ev.target.getAttribute('id');
@@ -104,7 +107,22 @@ const openWeatherMap = resultsEvent
     const res = document.getElementById('temp');
     const output = `${data.main.temp} C`;
     res.innerHTML = output;
-
     console.log(output);
-    placeSubject.next(data.main.temp);
+
+    const w = document.getElementById('w');
+    const i = document.getElementById('image-container');
+    // document.getElementById('results-container').style.display = 'none';
+
+    i.style.display = 'block';
+
+    console.log(w.src);
+    if (data.main.temp > 17) {
+      console.log('SUNNY');
+      res.innerHTML += ' => SUNNY';
+      w.src = 'images/sunny.png';
+    } else {
+      console.log('WINTER');
+      res.innerHTML += ' => WINTER';
+      w.src = 'images/winter.jfif';
+    }
   });
