@@ -6,9 +6,11 @@ import {
   debounceTime,
   switchMap,
   skipWhile,
-  pluck
+  pluck,
+  distinctUntilChanged
 } from 'rxjs/operators';
 import { add } from './helpers';
+import { apiKey } from './apiKey';
 const place = document.getElementById('place-data');
 const locationOutput = '';
 const lastSearch = localStorage.getItem('lastSearch');
@@ -31,6 +33,7 @@ const placeSubject = new Subject();
 const inputData = inputSubject
   .pipe(
     skipWhile((value) => value === null || value.length < 3),
+    distinctUntilChanged(),
     tap((value) => {
       spinner.className = 'spinner';
       resultsBox.innerHTML = `<h3>Search term: ${value}</h3>`;
@@ -93,7 +96,7 @@ const openWeatherMap = resultsEvent
 
       place.innerHTML = `${id} City: ${city}, Lat: ${lat} Lon: ${lon}`;
       return ajax.getJSON(
-        `http://api.openweathermap.org/data/2.5/weather?units=metric&lat=${lat}&lon=${lon}&appid=6563c378112bd6794d51c69886e20dab`
+        `http://api.openweathermap.org/data/2.5/weather?units=metric&lat=${lat}&lon=${lon}&appid=${apiKey}`
       );
     })
   )
