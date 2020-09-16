@@ -24,11 +24,10 @@ const searchEvent = fromEvent(searchBox, 'keyup');
 const resultsEvent = fromEvent(resultsBox, 'click');
 
 // Subjects
-// const inputSubject = new BehaviorSubject('');
-const inputSubject = new Subject();
+const inputSubject = new BehaviorSubject('');
+//const inputSubject = new Subject();
 const placeSubject = new Subject();
 
-// Create stream from auto complete
 const inputData = inputSubject
   .pipe(
     skipWhile((value) => value === null || value.length < 3),
